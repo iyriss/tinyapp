@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/iyriss/tinyapp/issues"
   },
-  "homepage": "https://github.com/iyriss/tinyapp#readme"
+  "homepage": "https://github.com/iyriss/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
