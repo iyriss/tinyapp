@@ -29,30 +29,50 @@ app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
+
 //This app.get("/urls/new", should be above app.get("/urls/:id", ...)
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-app.post("/urls", (req, res) => {
-  urlDatabase[generateRandomString()] = req.body.longURL
-  let templateVars = { urls: urlDatabase };
-  res.render("urls_index", templateVars);
-  // console.log(req.body);  // Log the POST request body to the console
-  // res.send("Ok");         // Respond with 'Ok' (we will replace this)
-});
-
 //urls_show:
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]  };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
 
-app.get("/u/:shortURL2", (request, res) => {
-  // console.log(request)
-  let longURL = urlDatabase[request.params.shortURL2];
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
+
+// app.post("/urls", (req, res) => {
+//   urlDatabase[generateRandomString()] = req.body.longURL
+//   let templateVars = { urls: urlDatabase };
+//   res.render("urls_index", templateVars);
+//   // console.log(req.body);  // Log the POST request body to the console
+//   // res.send("Ok");         // Respond with 'Ok' (we will replace this)
+// });
+
+app.post("/urls", (req, res) => {
+  //se genera un randomString y se asigna a lo que el cliente escribio como long URL
+  //y se guarada en urlDatabase
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  console.log(urlDatabase);
+  res.redirect(`/urls/${shortURL}`);
+  });
+  //Hasta aqui genera un short URL que se muestra en my URLS guardado
+
+
+
+
+
+// app.get("/u/:shortURL2", (request, res) => {
+//   // console.log(request)
+//   let longURL = urlDatabase[request.params.shortURL2];
+//   res.redirect(longURL);
+// });
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
