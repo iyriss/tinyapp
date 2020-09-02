@@ -45,7 +45,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 })
 
 //UPDATE
-app.post("/urls/:id/update", (req, res) => {
+app.post("/urls/:id/rohit", (req, res) => {
   let id = req.params.id;
   urlDatabase[id] = req.body.longURL;
 res.redirect("/urls");
