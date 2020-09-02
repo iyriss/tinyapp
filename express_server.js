@@ -1,8 +1,11 @@
 const express = require("express");
 const app = express();
 const PORT = 8080;
-// const morgan = require('morgan');
-// app.use(morgan('dev'));
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser')
+
+app.use(cookieParser())
+app.use(morgan('dev'));
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -36,6 +39,13 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+
+//Login route
+app.post("/login", (req, res) => {
+  const value = req.body.username;
+  res.cookie("username", value);
+  res.redirect("/urls");
+})
 
 //DELETE
 app.post("/urls/:shortURL/delete", (req, res) => { 
