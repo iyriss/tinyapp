@@ -102,16 +102,26 @@ app.post("/register", (req, res) => {
 
 //LOG IN
 app.post("/login", (req, res) => {
-  console.log(req.body.user)
-  const value = req.body.user;
+  // console.log('tesst', req.body.user)
+  const value = req.body.username;
   res.cookie("user_id", value);
   res.redirect("/urls");
 });
 
+app.get("/login", (req, res) => {
+  const user_id = req.cookies["user_id"];
+  let templateVars = { urls: urlDatabase, user: users[user_id] };
+  res.render("login", templateVars);
+})
+
+// app.post("/login", (req, res) => {
+
+
+// })
 //LOG OUT
 app.post("/logout", (req, res) => {
   console.log("test")
-  // const value = req.body.username;
+  const value = req.body.username;
   // res.cookie("username", value);
   res.clearCookie("user_id");
   res.redirect("/urls");
