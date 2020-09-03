@@ -75,7 +75,7 @@ const findUserByEmail = (email) => {
   return false;
 }; 
 
-app. post("/register", (req, res) => {
+app.post("/register", (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.send("Email/Password fields can't be empty");
@@ -102,16 +102,18 @@ app. post("/register", (req, res) => {
 
 //LOG IN
 app.post("/login", (req, res) => {
-  const value = req.body.username;
-  res.cookie("username", value);
+  console.log(req.body.user)
+  const value = req.body.user;
+  res.cookie("user_id", value);
   res.redirect("/urls");
 });
 
 //LOG OUT
 app.post("/logout", (req, res) => {
-  const value = req.body.username;
-  res.cookie("username", value);
-  res.clearCookie("username");
+  console.log("test")
+  // const value = req.body.username;
+  // res.cookie("username", value);
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
