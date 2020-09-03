@@ -41,12 +41,19 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", { username });
 });
 
+//REGISTER
+app.get("/register", (req, res) => {
+  let templateVars = { username: req.cookies["username"] };
+  console.log(req.cookies["username"])
+  res.render("registration", templateVars);
+});
+
 //LOG IN
 app.post("/login", (req, res) => {
   const value = req.body.username;
   res.cookie("username", value);
   res.redirect("/urls");
-})
+});
 
 //LOG OUT
 app.post("/logout", (req, res) => {
@@ -54,21 +61,21 @@ app.post("/logout", (req, res) => {
   res.cookie("username", value);
   res.clearCookie("username");
   res.redirect("/urls");
-})
+});
 
 //DELETE
 app.post("/urls/:shortURL/delete", (req, res) => { 
   const urlToRemove = req.params.shortURL;
   delete urlDatabase[urlToRemove]
   res.redirect("/urls")
-})
+});
 
 //UPDATE
 app.post("/urls/:id/rohit", (req, res) => {
   let id = req.params.id;
   urlDatabase[id] = req.body.longURL;
 res.redirect("/urls");
-})
+});
 
 
 app.post("/urls", (req, res) => {
