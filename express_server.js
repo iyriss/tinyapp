@@ -47,7 +47,11 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const user_id = req.cookies["user_id"];
   let templateVars = { user: users[user_id] };
+if (!user_id) {
+  res.redirect("/login");
+} else {
   res.render("urls_new", templateVars);
+  }
 });
 
 //REGISTER
