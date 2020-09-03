@@ -3,13 +3,10 @@ const app = express();
 const PORT = 8080;
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser')
-
+const bodyParser = require("body-parser");
 app.use(cookieParser())
 app.use(morgan('dev'));
-
-const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-
 app.set('view engine', 'ejs');
 
 function generateRandomString() {
@@ -39,9 +36,6 @@ const users = {
   }
 }
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
 
 app.get("/urls", (req, res) => {
   const user_id = req.cookies["user_id"];
@@ -69,11 +63,12 @@ app.get("/register", (req, res) => {
 const findUserByEmail = (email) => {
   for (const userId in users) {
     if (users[userId].email === email) {
-      return true;
+      return users[userId];
     }
   }
   return false;
 }; 
+
 
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
@@ -102,27 +97,33 @@ app.post("/register", (req, res) => {
 
 //LOG IN
 app.post("/login", (req, res) => {
-  // console.log('tesst', req.body.user)
-  const value = req.body.username;
-  res.cookie("user_id", value);
-  res.redirect("/urls");
-});
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = findUserByEmail(email);
+  if(!email || !password) {
+  return res.status(403).send("🚫 Email/Password fields can't be empty");
+  }
+  if(!user){
+    return res.status(403).send("🚫 Wrong email, try again.")
+  }
+  console.log('user.password equals' , user.password)
+  if(user.password !== password){
+    return res.status(403).send("🚫 Wrong password, try again.")
+  }
 
+  res.cookie("user_id", user["id"])
+  res.redirect('/urls')
+})
+  
 app.get("/login", (req, res) => {
   const user_id = req.cookies["user_id"];
   let templateVars = { urls: urlDatabase, user: users[user_id] };
   res.render("login", templateVars);
 })
 
-// app.post("/login", (req, res) => {
 
-
-// })
 //LOG OUT
 app.post("/logout", (req, res) => {
-  console.log("test")
-  const value = req.body.username;
-  // res.cookie("username", value);
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
@@ -167,6 +168,9 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+app.get("/", (req, res) => {
+  res.send("Hello!");
+});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
