@@ -107,6 +107,9 @@ app.post("/login", (req, res) => {
   
 app.get("/login", (req, res) => {
   const user_id = req.session.user_id;
+  if (user_id) {
+    res.redirect('/urls');
+  }
   let templateVars = { urls: urlDatabase, user: users[user_id] };
   res.render("login", templateVars);
 });
@@ -160,8 +163,6 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[userID] };
     res.render("urls_show", templateVars);
-  // } else if (shortURL !== urlDatabase[shortURL]) {
-  //   return res.status(400).send("This URL does not exist yet 🦄");
 });
 
 app.get("/u/:shortURL", (req, res) => {
