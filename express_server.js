@@ -4,10 +4,12 @@ const PORT = 8080;
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser')
 const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
 app.use(cookieParser())
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
+
 
 function generateRandomString() {
   let randomUrl = '';
@@ -17,11 +19,6 @@ function generateRandomString() {
     randomUrl += chars[Math.round(Math.random() * (chars.length))]
   } return randomUrl;
 }
-
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
@@ -108,10 +105,11 @@ app.post("/register", (req, res) => {
   }
 
   const id = generateRandomString();
+  const hashedPassword = bcrypt.hashSync(password, 10);
   const newUser = { 
     id: id, 
     email: email,
-    password: password
+    password: hashedPassword
   }
 
 
@@ -134,10 +132,12 @@ app.post("/login", (req, res) => {
     return res.status(403).send("🚫 Wrong email, try again.")
   }
   console.log('user.password equals' , user.password)
-  if(user.password !== password){
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  if (!bcrypt.hashSync(user.password, hashedPassword)) {
+  // if(user.password !== password){
     return res.status(403).send("🚫 Wrong password, try again.")
   }
-
+console.log('heypassoooooooord', users)
   res.cookie("user_id", user["id"])
   res.redirect('/urls')
 })
