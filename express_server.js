@@ -40,7 +40,7 @@ const users = {
 app.get("/urls", (req, res) => {
   const user_id = req.session.user_id;
   if (!user_id) {
-    return res.status(403).send("Please log in or register to see your short URLS.");
+    return res.status(403).send("Please log in or register to see your short URLS 🏡 ");
   }
   let templateVars = { urls: urlsForUser(user_id, urlDatabase), user: users[user_id] };
   res.render("urls_index", templateVars);
@@ -70,11 +70,11 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).send("Email/Password fields can't be empty");
+    return res.status(400).send("Email/Password fields can't be empty 🔐 ");
   }
 
   if (getUserByEmail(email, users)) {
-    return res.status(400).send('Error status: 400. Email already registered.');
+    return res.status(400).send('Email already registered 🙉. Try to log in instead.');
   }
 
   const id = generateRandomString();
@@ -96,7 +96,7 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   const userId = getUserByEmail(email, users);
   if (!email || !password) {
-    return res.status(403).send("🚫 Email/Password fields can't be empty");
+    return res.status(400).send("🚫 Email/Password fields can't be empty");
   }
   if (!userId) {
     return res.status(403).send("🚫 Wrong email");
@@ -157,15 +157,15 @@ app.get("/urls/:shortURL", (req, res) => {
   if (!userID) {
     return res.status(400).send("Please log in");
   } else if (!urlDatabase.hasOwnProperty(shortURL)) {
-      return res.status(400).send("This URL does not exist yet 🦄. Let's create one ");
+    return res.status(400).send("This URL does not exist yet 🦄. Let's create one ");
   } else if (urlDatabase[shortURL].userID !== userID) {
-    return res.status(400).send("This url doesn't belong to you");
-  } 
+    return res.status(403).send("This url doesn't belong to you 🙅🏻‍♀️🙅🏽‍♂️");
+  }
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[userID] };
-    res.render("urls_show", templateVars);
+  res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
