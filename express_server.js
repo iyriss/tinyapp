@@ -60,6 +60,9 @@ app.get("/urls/new", (req, res) => {
 //REGISTER
 app.get("/register", (req, res) => {
   const user_id = req.session.user_id;
+  if (user_id) {
+    res.redirect("/urls");
+  }
   let templateVars = { user: users[user_id] };
   res.render("registration", templateVars);
 });
