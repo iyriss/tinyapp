@@ -106,26 +106,26 @@ app.post("/register", (req, res) => {
   req.session.user_id = id;
   res.redirect('/urls');
 });
-
+console.log(getUserByEmail("user2@example.com", users));
 //LOG IN
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const user = getUserByEmail(email, users);
+  const userId = getUserByEmail(email, users);
   if (!email || !password) {
     return res.status(403).send("🚫 Email/Password fields can't be empty");
   }
-  if (!user) {
-    return res.status(403).send("🚫 Wrong email, try again.");
+  if (!userId) {
+    return res.status(403).send("🚫 Wrong email");
   }
-  console.log('user.password equals' , user.password, '--', password);
+  console.log('user.password equals' , users[userId].password, '--', password);
   // const hashedPassword = bcrypt.hashSync(password, 10);
-  if (!bcrypt.compareSync(password, user.password)) {
+  if (!bcrypt.compareSync(password, users[userId].password)) {
   // if(user.password !== password){
     return res.status(403).send("🚫 Wrong password, try again.");
   }
 console.log('heypassoooooooord', users);
-  req.session.user_id = user["id"];
+  req.session.user_id = userId["id"];
   // res.cookie("user_id", user["id"]) no more cookies
   res.redirect('/urls');
 });
