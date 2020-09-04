@@ -150,14 +150,18 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   if (!userID) {
     return res.status(400).send("Please log in");
+  } else if (!urlDatabase.hasOwnProperty(shortURL)) {
+      return res.status(400).send("This URL does not exist yet 🦄. Let's create one ");
   } else if (urlDatabase[shortURL].userID !== userID) {
     return res.status(400).send("This url doesn't belong to you");
-  }
+  } 
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[userID] };
-  res.render("urls_show", templateVars);
+    res.render("urls_show", templateVars);
+  // } else if (shortURL !== urlDatabase[shortURL]) {
+  //   return res.status(400).send("This URL does not exist yet 🦄");
 });
 
 app.get("/u/:shortURL", (req, res) => {
