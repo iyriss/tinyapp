@@ -15,16 +15,9 @@ app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
 
-const { getUserByEmail } = require('./helpers')
-
-function generateRandomString() {
-  let randomUrl = '';
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const length = 6;
-  for (let i = 0; i < length; i++) {
-    randomUrl += chars[Math.round(Math.random() * (chars.length))];
-  } return randomUrl;
-}
+const { getUserByEmail } = require('./helpers');
+const { generateRandomString } = require('./helpers');
+const { urlsForUser } = require('./helpers');
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
@@ -44,31 +37,19 @@ const users = {
   }
 };
 
-const urlsForUser = (id) => {
-  const urls = {};
-  for (const url in urlDatabase) {
-    if (urlDatabase[url]["userID"] === id) {
-      urls[url] = urlDatabase[url];
-    }
-  }
-  return urls;
-};
-
 app.get("/urls", (req, res) => {
   const user_id = req.session.user_id;
-  // console.log('res.cookie:', req.cookies);
-  // console.log('user_id:', user_id);
-  // console.log('all the users:', users);
-  let templateVars = { urls: urlsForUser(user_id), user: users[user_id] };
-  // console.log('template vars is: get/urls', templateVars);
+  if (!user_id) {
+    return res.status(403).send("Please log in or register to see your short URLS.");
+  }
+  let templateVars = { urls: urlsForUser(user_id, urlDatabase), user: users[user_id] };
   res.render("urls_index", templateVars);
 });
 
-//This app.get("/urls/new", should be above app.get("/urls/:id", ...)
+//This route app.get("/urls/new", should be above app.get("/urls/:id", ...)
 app.get("/urls/new", (req, res) => {
   const user_id = req.session.user_id;
   let templateVars = { user: users[user_id] };
-  // console.log('WHAT IS THIS', user_id);
   if (!user_id) {
     res.redirect("/login");
   } else {
@@ -102,11 +83,10 @@ app.post("/register", (req, res) => {
   };
 
   users[id] = newUser;
-  // console.log("users are now: ", users);
   req.session.user_id = id;
   res.redirect('/urls');
 });
-console.log(getUserByEmail("user2@example.com", users));
+
 //LOG IN
 app.post("/login", (req, res) => {
   const email = req.body.email;
@@ -118,15 +98,10 @@ app.post("/login", (req, res) => {
   if (!userId) {
     return res.status(403).send("🚫 Wrong email");
   }
-  console.log('user.password equals' , users[userId].password, '--', password);
-  // const hashedPassword = bcrypt.hashSync(password, 10);
   if (!bcrypt.compareSync(password, users[userId].password)) {
-  // if(user.password !== password){
     return res.status(403).send("🚫 Wrong password, try again.");
   }
-console.log('heypassoooooooord', userId);
   req.session.user_id = userId;
-  // res.cookie("user_id", user["id"]) no more cookies
   res.redirect('/urls');
 });
   
@@ -150,7 +125,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (urlDatabase[urlToRemove].userID === userID) {
     delete urlDatabase[urlToRemove];
   }
-  console.log('urls database', urlDatabase);
   res.redirect("/urls");
 });
 
@@ -163,16 +137,12 @@ app.post("/urls/:id/rohit", (req, res) => {
 
 
 app.post("/urls", (req, res) => {
-  //se genera un randomString y se asigna a lo que el cliente escribio como long URL
-  //y se guarada en urlDatabase
+  //creates a randomString and it is assigned to client. It is saved in the urlDatabase
   const shortURL = generateRandomString();
   const userID = req.session.user_id;
   urlDatabase[shortURL] = {"longURL": req.body.longURL, "userID": userID};
-
-  // console.log('this is our console log: ', urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
-//Hasta aqui genera un short URL que se muestra en my URLS guardado
 
 //urls_show:
 app.get("/urls/:shortURL", (req, res) => {
@@ -183,7 +153,6 @@ app.get("/urls/:shortURL", (req, res) => {
   } else if (urlDatabase[shortURL].userID !== userID) {
     return res.status(400).send("This url doesn't belong to you");
   }
-
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
@@ -192,20 +161,20 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
+  if (!urlDatabase[req.params.shortURL]) {
+    return res.status(400).send("This URL does not exist yet 🦄");
+  }
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+  const user_id = req.session.user_id;
+  if (!user_id) {
+    res.redirect("/register");
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 app.listen(PORT, () => {
