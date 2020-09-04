@@ -124,8 +124,8 @@ app.post("/login", (req, res) => {
   // if(user.password !== password){
     return res.status(403).send("🚫 Wrong password, try again.");
   }
-console.log('heypassoooooooord', users);
-  req.session.user_id = userId["id"];
+console.log('heypassoooooooord', userId);
+  req.session.user_id = userId;
   // res.cookie("user_id", user["id"]) no more cookies
   res.redirect('/urls');
 });
@@ -169,7 +169,7 @@ app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
   urlDatabase[shortURL] = {"longURL": req.body.longURL, "userID": userID};
 
-  console.log('this is our console log: ', urlDatabase);
+  // console.log('this is our console log: ', urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
 //Hasta aqui genera un short URL que se muestra en my URLS guardado
