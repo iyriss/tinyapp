@@ -2,7 +2,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const morgan = require('morgan');
-
+const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
 
 app.use(cookieSession({
@@ -10,12 +11,11 @@ app.use(cookieSession({
   keys: ["key"],
 }));
 
-const bodyParser = require("body-parser");
-const bcrypt = require('bcrypt');
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
 
+const { getUserByEmail } = require('./helpers')
 
 function generateRandomString() {
   let randomUrl = '';
